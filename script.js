@@ -1,64 +1,91 @@
-// script.js - Bruno Martins Curriculum
-
-// Navegação suave para âncoras
-const navLinks = document.querySelectorAll('.nav a');
-navLinks.forEach(link => {
-  link.addEventListener('click', function(e) {
-    const href = this.getAttribute('href');
-    if (href.startsWith('#')) {
-      e.preventDefault();
-      const section = document.querySelector(href);
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  });
-});
-
-// Destaque de seção ao rolar
-const sections = document.querySelectorAll('main section');
-function updateActiveLink() {
-  let scrollPos = window.scrollY || window.pageYOffset;
-  sections.forEach(section => {
-    const top = section.offsetTop - 100;
-    const bottom = top + section.offsetHeight;
-    const navLink = document.querySelector('.nav a[href="#' + section.id + '"]');
-    if (scrollPos >= top && scrollPos < bottom) {
-      navLink && navLink.classList.add('active');
+document.addEventListener('DOMContentLoaded', () => {
+  /* ==============================================
+     1. Sticky Header
+     ============================================== */
+  const header = document.querySelector('.header');
+  
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
     } else {
-      navLink && navLink.classList.remove('active');
+      header.classList.remove('scrolled');
     }
   });
-}
-window.addEventListener('scroll', updateActiveLink);
-window.addEventListener('load', updateActiveLink);
 
-// Reveal animation for cards
-const reveals = document.querySelectorAll('.reveal');
-if ('IntersectionObserver' in window) {
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('show');
-        io.unobserve(entry.target);
+  /* ==============================================
+     2. Mobile Menu Toggle
+     ============================================== */
+  const menuToggle = document.getElementById('mobile-menu');
+  const nav = document.querySelector('.nav');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  menuToggle.addEventListener('click', () => {
+    nav.classList.toggle('open');
+    const icon = menuToggle.querySelector('i');
+    if (nav.classList.contains('open')) {
+      icon.classList.remove('ph-list');
+      icon.classList.add('ph-x');
+    } else {
+      icon.classList.remove('ph-x');
+      icon.classList.add('ph-list');
+    }
+  });
+
+  // Close menu when a link is clicked
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('open');
+      const icon = menuToggle.querySelector('i');
+      icon.classList.remove('ph-x');
+      icon.classList.add('ph-list');
+    });
+  });
+
+  /* ==============================================
+     3. Active Menu Link on Scroll
+     ============================================== */
+  const sections = document.querySelectorAll('section');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.clientHeight;
+      if (pageYOffset >= (sectionTop - 200)) {
+        current = section.getAttribute('id');
       }
     });
-  }, { threshold: 0.12 });
-  reveals.forEach(el => io.observe(el));
-} else {
-  // Fallback
-  reveals.forEach(el => el.classList.add('show'));
-}
 
-// Dark mode toggle with persistence
-const root = document.documentElement;
-const toggleBtn = document.getElementById('themeToggle');
-const storedTheme = localStorage.getItem('theme');
-if (storedTheme) {
-  root.setAttribute('data-theme', storedTheme);
-}
-toggleBtn && toggleBtn.addEventListener('click', () => {
-  const current = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', current);
-  localStorage.setItem('theme', current);
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${current}`) {
+        link.classList.add('active');
+      }
+    });
+  });
+
+  /* ==============================================
+     4. Reveal Animations (Intersection Observer)
+     ============================================== */
+  const revealElements = document.querySelectorAll('.reveal-fade-up, .reveal-fade-in');
+
+  const revealOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px"
+  };
+
+  const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) {
+        return;
+      }
+      entry.target.classList.add('active');
+      observer.unobserve(entry.target);
+    });
+  }, revealOptions);
+
+  revealElements.forEach(el => {
+    revealOnScroll.observe(el);
+  });
 });
