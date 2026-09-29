@@ -88,4 +88,87 @@ document.addEventListener('DOMContentLoaded', () => {
   revealElements.forEach(el => {
     revealOnScroll.observe(el);
   });
+
+  /* ==============================================
+     5. Skill Tooltips (onde cada tecnologia foi aplicada)
+     ============================================== */
+  const skillContext = {
+    'React.js': 'Spun Mídia (biblioteca UI com Storybook), Opah IT (componentes reutilizáveis) e SysMap (plataforma educacional).',
+    'Next.js': 'Opah IT em soluções financeiras (SSR/SSG) e SysMap na plataforma de cursos/matrizes curriculares.',
+    'Angular.js': 'Avanade no Hospital Einstein (sustentação em Angular 7) e AllNet em projetos legados com AngularJS.',
+    'Tailwind CSS': 'Opah IT no fluxo de Design System e construção de componentes front-end entre squads.',
+    'Storybook': 'Spun Mídia e Opah IT na documentação e evolução de Design System para acelerar entregas.',
+    'TypeScript': 'Opah IT em produtos Full Stack com Next.js/NestJS e contratos de front-end mais previsíveis.',
+    'HTML5 / CSS3': 'AllNet (PWA operacional, IoT e portal), Prefeitura RJ (sistemas de saúde) e projetos web corporativos.',
+    'Node.js': 'Spun Mídia (IAM), Opah IT (setor financeiro), Compass/Sem Parar, SysMap (educação), Avanade e AllNet.',
+    'NestJS': 'Opah IT (APIs financeiras) e Compass.uol no projeto Sem Parar com foco em escalabilidade.',
+    'PHP': 'AllNet e Prefeitura do Rio na evolução de sistemas internos e plataformas públicas de saúde.',
+    'MongoDB': 'AllNet no painel de cartões Sodexo com automações e monitoramento de dados.',
+    'MySQL': 'SysMap (com Prisma), Avanade (Natura), AllNet (portal/API) e Prefeitura RJ (SINAN e ambulância).',
+    'DynamoDB': 'Compass.uol (Sem Parar) e Avanade (Natura) em cenários de integração e alta disponibilidade.',
+    'Prisma ORM': 'SysMap Solutions na plataforma educacional para modelagem e evolução de dados.',
+    'Apache Kafka': 'SysMap Solutions na mensageria assíncrona entre módulos da plataforma educacional.',
+    'AWS Lambda': 'Compass.uol no projeto Sem Parar com arquitetura serverless e foco em performance.',
+    'Serverless': 'Compass.uol em Sem Parar (Lambda + DynamoDB) para ganho de escala e eficiência operacional.',
+    'Scrum / Kanban': 'Aplicado em Opah IT e demais squads para entregas contínuas e alinhamento com produto/negócio.',
+    'Arquitetura Hexagonal': 'SysMap Solutions na plataforma de cursos para separar domínio, interfaces e integrações.',
+    'Puppeteer': 'AllNet no projeto de monitoramento de cartões Sodexo com captura automatizada de dados.'
+  };
+
+  const skillTags = document.querySelectorAll('.skill-tag');
+  const tooltip = document.createElement('div');
+  tooltip.className = 'skill-tooltip';
+  tooltip.setAttribute('role', 'tooltip');
+  document.body.appendChild(tooltip);
+
+  function getTooltipText(tag) {
+    const key = tag.textContent.trim();
+    return skillContext[key] || 'Tecnologia aplicada em projetos reais com foco em escala, qualidade e entrega continua.';
+  }
+
+  function showTooltip(event, tag) {
+    tooltip.textContent = getTooltipText(tag);
+    tooltip.classList.add('visible');
+    positionTooltip(event);
+  }
+
+  function hideTooltip() {
+    tooltip.classList.remove('visible');
+  }
+
+  function positionTooltip(event) {
+    const gap = 16;
+    const tooltipRect = tooltip.getBoundingClientRect();
+    let left = event.clientX + gap;
+    let top = event.clientY + gap;
+
+    if (left + tooltipRect.width > window.innerWidth - 12) {
+      left = event.clientX - tooltipRect.width - gap;
+    }
+
+    if (top + tooltipRect.height > window.innerHeight - 12) {
+      top = event.clientY - tooltipRect.height - gap;
+    }
+
+    tooltip.style.left = `${Math.max(12, left)}px`;
+    tooltip.style.top = `${Math.max(12, top)}px`;
+  }
+
+  skillTags.forEach((tag) => {
+    tag.setAttribute('tabindex', '0');
+
+    tag.addEventListener('mouseenter', (event) => showTooltip(event, tag));
+    tag.addEventListener('mousemove', (event) => positionTooltip(event));
+    tag.addEventListener('mouseleave', hideTooltip);
+
+    tag.addEventListener('focus', () => {
+      const rect = tag.getBoundingClientRect();
+      const fakeEvent = {
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.top + rect.height / 2
+      };
+      showTooltip(fakeEvent, tag);
+    });
+    tag.addEventListener('blur', hideTooltip);
+  });
 });
